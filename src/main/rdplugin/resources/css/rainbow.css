@@ -1,3 +1,15 @@
-.rdicon.app-logo.rainbow-delite{
+body.rainbow-delite .rdicon.app-logo {
 	background-image: url('../icon.png');
+}
+
+body.rainbow-delite .wrapper .sidebar .sidebar-wrapper {
+    background-position-x: right;
+    background-position-y: bottom;
+    background: url('../stripe.png') no-repeat;
+    height: calc(100% - 60px);
+}
+
+body.rainbow-delite.sidebar-mini .wrapper .sidebar .sidebar-wrapper {
+    background-position-x: left;
+    background-position-y: bottom;
 }
