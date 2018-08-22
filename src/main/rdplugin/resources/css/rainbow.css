@@ -2,14 +2,18 @@ body.rainbow-delite .rdicon.app-logo {
 	background-image: url('../icon.png');
 }
 
-body.rainbow-delite .wrapper .sidebar .sidebar-wrapper {
-    background-position-x: right;
+body.rainbow-delite .wrapper .sidebar:not(:hover) .sidebar-wrapper {
+    background: url('../stripe-trans.png') no-repeat;
+    background-position-x: 2px;
     background-position-y: bottom;
-    background: url('../stripe.png') no-repeat;
     height: calc(100% - 60px);
+    transition-property: top, left, width, background;
+    transition-duration: .2s, .2s, .35s, .35s;
 }
 
-body.rainbow-delite.sidebar-mini .wrapper .sidebar .sidebar-wrapper {
-    background-position-x: left;
+body.rainbow-delite .wrapper .sidebar:hover .sidebar-wrapper {
+    background: url('../stripe.png') no-repeat;
+    background-position-x: 2px;
     background-position-y: bottom;
+    height: calc(100% - 60px);
 }
