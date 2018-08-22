@@ -13,7 +13,6 @@ providers:
       ui:
         - pages: '*'
           scripts:
-            - js/init.js
             - js/main.js
           styles:
             - css/rainbow.css
