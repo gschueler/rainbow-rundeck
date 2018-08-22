@@ -20,4 +20,5 @@ ext.rundeckPluginVersion = '1.2'
 ext.sopsCopyright = "© 2018, Rundeck, Inc."
 ext.sopsUrl = "http://rundeck.com"
 ext.buildDateString=new Date().format("yyyy-MM-dd'T'HH:mm:ssX")
+apply plugin: 'idea'
 apply from: "zip-plugin.gradle"
