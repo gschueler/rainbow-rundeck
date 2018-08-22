@@ -1,0 +1,145 @@
+/*
+    //Include this file in a plugin's build.gradle to initialize a zip-based plugin
+
+    //define necessary metadata:
+    ext.pluginName = 'Plugin Name'
+    ext.pluginDescription = 'Does XYZ'
+
+    //Include this file in a plugin's build.gradle to initialize a zip-based plugin
+
+    apply from: "../zip-plugin.gradle"
+
+ */
+import org.apache.tools.ant.filters.ReplaceTokens
+
+apply plugin: RDZipPluginPlugin
+
+rdZipPlugin {
+    srcBase = 'src/main/rdplugin'
+    pluginYaml = 'plugin.yaml'
+}
+
+
+assets {
+    verbose = true
+    //minifyJs = !project.version.endsWith('SNAPSHOT')
+    minifyJs = true
+    minifyCss = !project.version.endsWith('SNAPSHOT')
+    enableSourceMaps = false
+    enableGzip = false
+    configOptions = [:]
+
+    minifyOptions = [
+            languageMode     : 'ES6',
+            targetLanguage   : 'ES5',
+            optimizationLevel: 'SIMPLE',
+            angularPass      : false // Can use @ngInject annotation for Angular Apps
+    ]
+
+//    includes = [/*'css*//*.css', */'js/*.js']
+    excludes = [
+            '**/*.less',
+            '**/*.html',
+            'js/lib/*.js',
+            'js/lib/**/*.js'
+    ]
+
+    //for plugin packaging
+    packagePlugin = false //set to true if this is a library
+
+    //developmentRuntime can be turned off
+    developmentRuntime = true
+
+    //if you want to customize the jar task this task runs on you can specify a jarTaskName
+    jarTaskName = null
+
+    // Can add custom asset locations (directories or individual jar files)
+    from "${project.projectDir}/src/main/rdplugin/assets"
+    compileDir = "${project.buildDir}/assets/resources"
+}
+
+ext.archivesBaseName = "$project.name"
+ext.archiveFilename = ext.archivesBaseName + '-' + version + '-plugin'
+
+defaultTasks 'build'
+
+configurations {
+    create('default')
+}
+
+task pluginZip(type: Jar) {
+    destinationDir = file("build/distributions")
+    baseName = project.ext.archivesBaseName
+    version = project.version
+    classifier = 'plugin'
+    extension = 'zip'
+
+    from("${project.buildDir}/zip-contents") {
+        into(archiveFilename)
+        exclude "resources/manifest.properties"
+    }
+
+    manifest {
+        attributes 'Rundeck-Plugin-Name': pluginName.toString(),
+                   'Rundeck-Plugin-Description': pluginDescription.toString(),
+                   'Rundeck-Plugin-Archive': 'true',
+                   'Rundeck-Plugin-File-Version': version,
+                   'Rundeck-Plugin-Author': sopsCopyright,
+                   'Rundeck-Plugin-URL': sopsUrl,
+                   'Rundeck-Plugin-Date': buildDateString
+    }
+}
+
+
+task build(dependsOn: 'validatePluginYaml') << {
+
+}
+
+task clean(type: Delete) {
+    delete('build')
+}
+
+pluginZip.doFirst {
+    def assetsDir = "${project.buildDir}/assets/resources"
+    def assetsMap = new Properties()
+    def assetsManifest = file("${assetsDir}/manifest.properties")
+    assetsManifest.withInputStream(assetsMap.&load)
+    def tokens = assetsMap + [
+            version    : version,
+            date       : new Date().toString(),
+            author     : sopsCopyright,
+            url        : sopsUrl,
+            title      : pluginName,
+            description: pluginDescription,
+            name       : archivesBaseName.toString(),
+    ]
+    copy {
+        //load asset mapping
+        from(assetsDir) {
+            into 'resources'
+        }
+
+        //to avoid the icon.png file will be unreadable
+        from("${project.projectDir}/src/main/rdplugin/resources"){
+            include '**/*.png'
+            into "resources"
+        }
+
+        from("${project.projectDir}/src/main/rdplugin") {
+            filter(ReplaceTokens, tokens: tokens)
+            exclude 'assets'
+            exclude '**/*.png'
+        }
+        into "${project.buildDir}/zip-contents"
+    }
+}
+
+project.pluginZip.dependsOn 'assetCompile'
+project.pluginZip.mustRunAfter 'assetCompile'
+project.validatePluginYaml.dependsOn 'pluginZip'
+project.validatePluginYaml.mustRunAfter 'pluginZip'
+
+
+artifacts {
+    add('default', pluginZip)
+}
