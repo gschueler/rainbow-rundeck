@@ -5,8 +5,11 @@
  * Learn how to create Gradle builds at https://guides.gradle.org/creating-new-gradle-builds/
  */
  plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.4.1'
+    id 'pl.allegro.tech.build.axion-release' version '1.9.2'
     id 'com.bertramlabs.asset-pipeline' version '2.11.6'
+}
+scmVersion{
+    ignoreUncommittedChanges = false
 }
 allprojects {
     project.version = scmVersion.version
