@@ -1,6 +1,8 @@
 Rainbow Rundeck
 ===============
 
+**NOTE: This plugin is Unsupported by Rundeck/PagerDuty. Please file [issues on github](https://github.com/gschueler/rainbow-rundeck/issues)**
+
 Put some 🌈 in your ops.
 
 
